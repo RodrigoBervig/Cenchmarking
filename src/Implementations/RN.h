@@ -13,7 +13,7 @@ struct RNnodo
 static RNtree *NodoNULL = NULL; //only one instance to save space
 
 RNtree *InsereRN(RNtree *t, int key, ull *operacoes);
-int Consulta(int X, RNtree *T);
+int ConsultaRN(int X, RNtree *T);
 RNtree *Remove(RNtree *t, int key);
 void destroiRN(RNtree *t);
 

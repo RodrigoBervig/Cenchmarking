@@ -7,7 +7,6 @@ typedef unsigned long long int ull;
 RNtree *InsereRN(RNtree *t, int key, ull *operacoes)
 {
   RNtree *x = t;
-
   if (t == NULL)
   {
     // allocate memory
@@ -70,30 +69,30 @@ RNtree *InsereRN(RNtree *t, int key, ull *operacoes)
   return VerificaRN(t, key, operacoes);
 };
 
-int Consulta(int X, RNtree *T)
+int ConsultaRN(int X, RNtree *T)
 {
   if (T == NodoNULL)
     return 0;
   if (X == T->key)
     return 1;
   else if (X < T->key)
-    return Consulta(X, T->esq);
+    return ConsultaRN(X, T->esq);
   else if (X > T->key)
-    return Consulta(X, T->dir);
+    return ConsultaRN(X, T->dir);
   else
     return 0;
 };
 
-void destroiRN(RNtree *t)
+void destroiRN(RNtree *a)
 {
-  if (t == NULL)
+  if (a == NULL || a == NodoNULL)
     return;
 
-  destroiRN(t->esq);
-  destroiRN(t->dir);
+  destroiRN(a->esq);
+  destroiRN(a->dir);
 
-  free(t);
-};
+  free(a);
+}
 
 RNtree *VerificaRN(RNtree *t, int key, ull *operacoes)
 {

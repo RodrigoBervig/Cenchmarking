@@ -59,8 +59,11 @@ PtNo *consulta(PtNo *l, int dado, ull *operacoes)
 {
   while ((l != NULL) && (l->info != dado))
   {
+    *operacoes += 2;
     l = l->prox;
   }
+
+  return l;
 }
 
 void imprime(PtNo *l)

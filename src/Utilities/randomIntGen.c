@@ -30,4 +30,6 @@ int genRandomFile(char const *fileName, int num, int limit)
 	{
 		fprintf(output, "%d ", rand() % limit);
 	}
+
+	fclose(output);
 };
