@@ -69,23 +69,36 @@ RNtree *InsereRN(RNtree *t, int key, ull *operacoes)
   return VerificaRN(t, key, operacoes);
 };
 
-int ConsultaRN(int X, RNtree *T)
+int ConsultaRN(int X, RNtree *T, ull *operacoes)
 {
+  //printf("t key: %d\n", T->key);
   if (T == NodoNULL)
+  {
+    *operacoes += 1;
     return 0;
+  }
   if (X == T->key)
+  {
+    *operacoes += 1;
     return 1;
+  }
   else if (X < T->key)
-    return ConsultaRN(X, T->esq);
+  {
+    *operacoes += 1;
+    return ConsultaRN(X, T->esq, operacoes);
+  }
   else if (X > T->key)
-    return ConsultaRN(X, T->dir);
+  {
+    *operacoes += 1;
+    return ConsultaRN(X, T->dir, operacoes);
+  }
   else
     return 0;
 };
 
 void destroiRN(RNtree *a)
 {
-  if (a == NULL || a == NodoNULL)
+  if (a == NodoNULL)
     return;
 
   destroiRN(a->esq);

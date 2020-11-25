@@ -29,14 +29,18 @@ pNodoA *InsereArvore(pNodoA *a, tipoinfo ch, ull *operacoes)
         }
     }
 
-    if (y == NULL)
+    if (y == NULL) //tree is empty
+    {
+        *operacoes += 1;
         return b;
+    }
 
     if (ch < y->info)
     {
+        *operacoes += 1;
         y->esq = b;
     }
-    else
+    else if (ch > y->info)
     {
         y->dir = b;
     }

@@ -33,3 +33,21 @@ int genRandomFile(char const *fileName, int num, int limit)
 
 	fclose(output);
 };
+
+void genOrderedFile(char const *fileName, int num, int limit)
+{
+	FILE *output;
+
+	if ((output = fopen(fileName, "w")) == NULL)
+	{
+		printf("Error while opening random integer output file\n");
+		return;
+	}
+
+	for (int i = 0; i <= num; i++)
+	{
+		fprintf(output, "%d ", i);
+	}
+
+	fclose(output);
+}

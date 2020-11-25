@@ -1,5 +1,4 @@
 #include "testRunner.h"
-#include "../Utilities/randomIntGen.h"
 #include "../Implementations/lse.h"
 #include "../Implementations/abp.h"
 #include "../Implementations/RN.h"
@@ -9,92 +8,212 @@
 
 typedef unsigned long long int ull;
 
-double insertLSE(int num, ull *operacoes, char const *file, PtNo **list);
-double insertABP(int num, ull *operacoes, char const *file, pNodoA **arvore);
-double insertRN(int num, ull *operacoes, char const *file, RNtree **rnt);
-double buscaABP(pNodoA *arvore, ull *operacoes);
-double consultaLSE(PtNo *list, ull *operacoes);
+double insertLSE(int num, ull *comparacoes, char const *file, PtNo **list);
+double insertABP(int num, ull *comparacoes, char const *file, pNodoA **arvore);
+double insertRN(int num, ull *comparacoes, char const *file, RNtree **rnt);
+double buscaABP(pNodoA *arvore, ull *comparacoes);
+double buscaLSE(PtNo *list, ull *comparacoes);
+double buscaRN(RNtree *rnt, ull *comparacoes);
 
 int nElements[] = {5000, 10000, 100000, 1000000};
+char *const files[][9] = {{"orderedIntegers.txt", "ORDENADA"}, {"randomIntegers.txt", "ALEATÓRIA"}};
+
+ull comparacoes, totalComparacoes;
+double timeSpent;
+
+void resetControlVariables()
+{
+    comparacoes = totalComparacoes = 0;
+    timeSpent = 0;
+}
+
+void printInsercaoStats(double timeSpent, ull totalComparacoes)
+{
+    printf("\t\t  %.2lf", timeSpent / 3);
+    printf("\t\t %llu", totalComparacoes / 3);
+}
+
+void printConsultaStats(double timeSpent, ull comparacoes)
+{
+    printf("\t %lf", timeSpent);
+    printf("\t %llu\n", comparacoes);
+}
+
+/*Funções para todos os testes*/
 
 void rodaTestesLSE()
 {
-    double time = 0;
-    ull operacao = 0, totalOperacoes = 0;
     PtNo *list;
 
-    printf("TESTE ELEMENTOS ORDENADOS LSE:\n");
-    for (int i = 0; i < 3; i++)
+    for (int k = 0; k < 2; k++)
     {
-        for (int j = 0; j < 3; j++)
+        printf("\n\n------------------------ LSE (ENTRADA %s) ------------------------\n", files[k][1]);
+        printf("#Elementos \t Tempo \t\t #Operações \t TConsulta \t #OpsConsulta\n");
+        for (int i = 0; i < 4; i++)
         {
-            time += insertLSE(nElements[i], &operacao, "orderedIntegers.txt", &list);
-            totalOperacoes += operacao;
-            operacao = 0;
-            if (j < 2)
-                list = destroi(list);
+            printf("%d", nElements[i]);
+
+            for (int j = 0; j < 3; j++)
+            {
+                timeSpent += insertLSE(nElements[i], &comparacoes, files[k][0], &list);
+                totalComparacoes += comparacoes;
+                comparacoes = 0;
+                if (j < 2)
+                    list = destroi(list);
+            }
+
+            printInsercaoStats(timeSpent, totalComparacoes);
+
+            resetControlVariables();
+
+            //CONSULTA
+            timeSpent = buscaLSE(list, &comparacoes);
+            printConsultaStats(timeSpent, comparacoes);
+
+            resetControlVariables();
+            list = destroi(list);
         }
-        printf("Tempo médio para inserir %d elementos ordenados na LSE: %.2lf\n", nElements[i], time / 3);
-        printf("Número médio de instruções para inserir %d elementos orenados na LSE: %llu\n", nElements[i], totalOperacoes / 3);
-
-        time = 0;
-        operacao = totalOperacoes = 0;
-
-        //CONSULTA
-        time = consultaLSE(list, &operacao);
-        printf("Tempo médio de para consultar uma LSE com %d elementos ordenados: %lf\n", nElements[i], time);
-        printf("Número médio de instruções para consultar elementos em uma LSE com %d elementos ordenados: %llu\n\n\n", nElements[i], operacao / 1000);
-
-        time = operacao = 0;
-        list = destroi(list);
-    }
-
-    printf("TESTE ELEMENTOS ALEATÓRIOS LSE:\n");
-    for (int i = 0; i < 3; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            time += insertLSE(nElements[i], &operacao, "randomIntegers.txt", &list);
-            totalOperacoes += operacao;
-            operacao = 0;
-            if (j < 2)
-                list = destroi(list);
-        }
-        printf("Tempo médio para inserir %d elementos aleatórios na LSE: %.2lf\n", nElements[i], time / 3);
-        printf("Número médio de instruções para inserir %d elementos aleatórios na LSE: %llu\n", nElements[i], totalOperacoes / 3);
-
-        time = 0;
-        operacao = totalOperacoes = 0;
-
-        //CONSULTA
-        time = consultaLSE(list, &operacao);
-        printf("Tempo médio de para consultar uma LSE com %d elementos aleatórios: %lf\n", nElements[i], time);
-        printf("Número médio de instruções para consultar elementos em uma LSE com %d elementos aleatórios: %llu\n\n\n", nElements[i], operacao / 1000);
-
-        time = operacao = 0;
-        list = destroi(list);
     }
 
     return;
 }
 
-double consultaLSE(PtNo *list, ull *operacoes)
+void rodaTestesABP()
+{
+    resetControlVariables();
+    pNodoA *arvore = NULL;
+
+    for (int k = 0; k < 2; k++)
+    {
+        printf("\n\n------------------------ ABP (ENTRADA %s) ------------------------\n", files[k][1]);
+        printf("#Elementos \t Tempo \t\t #Operações \t TConsulta \t #OpsConsulta\n");
+        for (int i = 0; i < 4; i++)
+        {
+            printf("%d", nElements[i]);
+
+            for (int j = 0; j < 3; j++)
+            {
+                timeSpent += insertABP(nElements[i], &comparacoes, files[k][0], &arvore);
+                totalComparacoes += comparacoes;
+                comparacoes = 0;
+                if (j < 2)
+                {
+                    destroiABP(arvore);
+                    arvore = NULL;
+                }
+            }
+            printInsercaoStats(timeSpent, totalComparacoes);
+
+            resetControlVariables();
+
+            //CONSULTA
+            timeSpent = buscaABP(arvore, &comparacoes);
+            printConsultaStats(timeSpent, comparacoes);
+
+            destroiABP(arvore);
+            arvore = NULL;
+
+            resetControlVariables();
+        }
+    }
+}
+
+void rodaTestesRN()
+{
+    resetControlVariables();
+    RNtree *rnt = NULL;
+
+    for (int k = 0; k < 2; k++)
+    {
+        printf("\n\n------------------------ RN (ENTRADA %s) ------------------------\n", files[k][1]);
+        printf("#Elementos \t Tempo \t\t #Operações \t TConsulta \t #OpsConsulta\n");
+        for (int i = 0; i < 4; i++)
+        {
+            printf("%d", nElements[i]);
+            for (int j = 0; j < 3; j++)
+            {
+                timeSpent += insertRN(nElements[i], &comparacoes, files[k][0], &rnt);
+                totalComparacoes += comparacoes;
+                comparacoes = 0;
+                if (j < 2)
+                {
+                    destroiRN(rnt);
+                    rnt = NULL;
+                }
+            }
+            printInsercaoStats(timeSpent, totalComparacoes);
+
+            resetControlVariables();
+
+            //CONSULTA
+            timeSpent = buscaRN(rnt, &comparacoes);
+            printConsultaStats(timeSpent, comparacoes);
+
+            destroiRN(rnt);
+            rnt = NULL;
+
+            resetControlVariables();
+        }
+    }
+
+    return;
+}
+
+/*Funções de inserção*/
+
+double insertRN(int num, ull *comparacoes, char const *file, RNtree **rnt)
 {
     clock_t start, end;
-    PtNo *aux;
+    FILE *input;
+    int dado = 0;
+
+    if ((input = fopen(file, "r")) == NULL)
+    {
+        printf("Erro ao tentar abrir o arquivo %s\n", file);
+    }
 
     start = clock();
 
-    for (int i = 1; i <= 1000; i++)
+    for (int i = 0; i < num; i++)
     {
-        aux = consulta(list, rand() % 1000000, operacoes);
+        fscanf(input, "%d", &dado);
+        *rnt = InsereRN(*rnt, dado, comparacoes);
     }
 
     end = clock();
-    return (((double)end - (double)start)) / (double)CLOCKS_PER_SEC;
+
+    fclose(input);
+
+    return ((double)(end - start)) / CLOCKS_PER_SEC;
 }
 
-double insertLSE(int num, ull *operacoes, char const *file, PtNo **list)
+double insertABP(int num, ull *comparacoes, char const *file, pNodoA **arvore)
+{
+    clock_t start, end;
+    FILE *input;
+    int dado = 0;
+
+    if ((input = fopen(file, "r")) == NULL)
+    {
+        printf("Erro ao tentar abrir o arquivo %s\n", file);
+    }
+
+    start = clock();
+
+    for (int i = 0; i < num; i++)
+    {
+        fscanf(input, "%d", &dado);
+        *arvore = InsereArvore(*arvore, dado, comparacoes);
+    }
+
+    end = clock();
+
+    fclose(input);
+
+    return ((double)(end - start)) / CLOCKS_PER_SEC;
+}
+
+double insertLSE(int num, ull *comparacoes, char const *file, PtNo **list)
 {
     clock_t start, end;
     FILE *input;
@@ -111,7 +230,7 @@ double insertLSE(int num, ull *operacoes, char const *file, PtNo **list)
     for (int i = 0; i < num; i++)
     {
         fscanf(input, "%d", &dado);
-        *list = insere_ord(*list, dado, operacoes);
+        *list = insere_ord(*list, dado, comparacoes);
     }
 
     end = clock();
@@ -120,70 +239,26 @@ double insertLSE(int num, ull *operacoes, char const *file, PtNo **list)
     return ((double)(end - start)) / CLOCKS_PER_SEC;
 }
 
-void rodaTestesABP()
+/*Funções de consulta*/
+
+double buscaRN(RNtree *rnt, ull *comparacoes)
 {
-    double time = 0;
-    ull operacao = 0, totalOperacoes = 0;
-    pNodoA *arvore = NULL;
 
-    printf("\t\t\t\tTESTE ELEMENTOS ORDENADOS ABP:\n");
-    for (int i = 0; i < 3; i++)
+    clock_t start, end;
+    int aux;
+
+    start = clock();
+
+    for (int i = 1; i <= 1000; i++)
     {
-        for (int j = 0; j < 3; j++)
-        {
-            time += insertABP(nElements[i], &operacao, "orderedIntegers.txt", &arvore);
-            totalOperacoes += operacao;
-            operacao = 0;
-            if (j < 2)
-                destroiABP(arvore);
-            arvore = NULL;
-        }
-        printf("Tempo médio para inserir %d elementos ordenados na ABP: %.2lf\n", nElements[i], time / 1);
-        printf("Número médio de instruções para inserir %d elementos ordenados na ABP: %llu\n", nElements[i], totalOperacoes / 1);
-
-        operacao = totalOperacoes = 0;
-
-        //CONSULTA
-        time = buscaABP(arvore, &operacao);
-        printf("Tempo médio de para consultar uma ABP com %d elementos ordenados: %lf\n", nElements[i], time);
-        printf("Número médio de instruções para consultar elementos em uma ABP com %d elementos ordenados: %llu\n\n\n", nElements[i], operacao / 10);
-        time = 0;
-        operacao = 0;
-        destroiABP(arvore);
-        arvore = NULL;
+        aux = ConsultaRN(rand() % 1000000, rnt, comparacoes);
     }
 
-    //****************************************************************************************//
-
-    printf("\t\t\t\tTESTE ELEMENTOS ALEATÓRIOS ABP:\n");
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            time += insertABP(nElements[i], &operacao, "randomIntegers.txt", &arvore);
-            totalOperacoes += operacao;
-            operacao = 0;
-            if (j < 2)
-                destroiABP(arvore);
-            arvore = NULL;
-        }
-        printf("Tempo médio para inserir %d elementos aleatórios na ABP: %.2lf\n", nElements[i], time / 3);
-        printf("Número médio de instruções para inserir %d elementos aleatórios na ABP: %llu\n", nElements[i], totalOperacoes / 3);
-        time = 0;
-        operacao = totalOperacoes = 0;
-
-        //CONSULTA
-        time = buscaABP(arvore, &operacao);
-        printf("Tempo médio para consultar uma ABP com %d elementos aleatórios: %lf\n", nElements[i], time);
-        printf("Número médio de instruções para consultar elementos em uma ABP com %d elementos aleatórios: %llu\n\n", nElements[i], operacao / 10);
-        time = 0;
-        operacao = totalOperacoes = 0;
-        destroiABP(arvore);
-        arvore = NULL;
-    }
+    end = clock();
+    return (((double)end - (double)start)) / (double)CLOCKS_PER_SEC;
 }
 
-double buscaABP(pNodoA *arvore, ull *operacoes)
+double buscaABP(pNodoA *arvore, ull *comparacoes)
 {
     clock_t start, end;
     pNodoA *aux;
@@ -192,124 +267,25 @@ double buscaABP(pNodoA *arvore, ull *operacoes)
 
     for (int i = 1; i <= 1000; i++)
     {
-        aux = consultaABP(arvore, rand() % 1000000, operacoes);
+        aux = consultaABP(arvore, rand() % 1000000, comparacoes);
     }
 
     end = clock();
     return (((double)end - (double)start)) / (double)CLOCKS_PER_SEC;
 }
 
-double insertABP(int num, ull *operacoes, char const *file, pNodoA **arvore)
+double buscaLSE(PtNo *list, ull *comparacoes)
 {
     clock_t start, end;
-    FILE *input;
-    int dado = 0;
-
-    if ((input = fopen(file, "r")) == NULL)
-    {
-        printf("Erro ao tentar abrir o arquivo %s\n", file);
-    }
+    PtNo *aux;
 
     start = clock();
 
-    for (int i = 0; i < num; i++)
+    for (int i = 1; i <= 1000; i++)
     {
-        fscanf(input, "%d", &dado);
-        *arvore = InsereArvore(*arvore, dado, operacoes);
+        aux = consulta(list, rand() % 1000000, comparacoes);
     }
 
     end = clock();
-
-    fclose(input);
-
-    return ((double)(end - start)) / CLOCKS_PER_SEC;
-}
-
-void rodaTestesRN()
-{
-    double time = 0;
-    ull operacao = 0, totalOperacoes = 0;
-    RNtree *rnt = NULL;
-
-    printf("\t\t\tTESTE ELEMENTOS ORDENADOS RN:\n");
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            time += insertRN(nElements[i], &operacao, "orderedIntegers.txt", &rnt);
-            totalOperacoes += operacao;
-            operacao = 0;
-            if (j < 2)
-                destroiRN(rnt);
-            rnt = NULL;
-        }
-        printf("Tempo médio para inserir %d elementos ordenados na RN: %.2lf\n", nElements[i], time / 3);
-        printf("Número médio de instruções para inserir %d elementos ordenados na RN: %llu\n\n\n", nElements[i], totalOperacoes / 3);
-
-        time = 0;
-        operacao = totalOperacoes = 0;
-    }
-    /* //CONSULTA
-        time = consultaLSE(rnt, &operacao);
-        printf("Tempo médio de para consultar uma RN com %d elementos ordenados: %lf\n", nElements[i], time);
-        printf("Número médio de instruções para consultar elementos em uma RN com %d elementos ordenados: %llu\n\n\n", nElements[i], operacao / 1000);
-        */
-    time = operacao = 0;
-    destroiRN(rnt);
-    rnt = NULL;
-
-    printf("\t\t\tTESTE ELEMENTOS ALEATÓRIOS RN\n");
-    /**********************************************************************/
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            time += insertRN(nElements[i], &operacao, "randomIntegers.txt", &rnt);
-            totalOperacoes += operacao;
-            operacao = 0;
-            if (j < 2)
-                destroiRN(rnt);
-            rnt = NULL;
-        }
-        printf("Tempo médio para inserir %d elementos aleatórios na RN: %.2lf\n", nElements[i], time / 3);
-        printf("Número médio de instruções para inserir %d elementos aleatórios na RN: %llu\n", nElements[i], totalOperacoes / 3);
-
-        time = 0;
-        operacao = totalOperacoes = 0;
-
-        /* //CONSULTA
-        time = consultaLSE(rnt, &operacao);
-        printf("Tempo médio de para consultar uma RN com %d elementos ordenados: %lf\n", nElements[i], time);
-        printf("Número médio de instruções para consultar elementos em uma RN com %d elementos ordenados: %llu\n\n\n", nElements[i], operacao / 1000);
-        */
-        time = operacao = 0;
-        destroiRN(rnt);
-        rnt = NULL;
-    }
-}
-
-double insertRN(int num, ull *operacoes, char const *file, RNtree **rnt)
-{
-    clock_t start, end;
-    FILE *input;
-    int dado = 0;
-
-    if ((input = fopen(file, "r")) == NULL)
-    {
-        printf("Erro ao tentar abrir o arquivo %s\n", file);
-    }
-
-    start = clock();
-
-    for (int i = 0; i < num; i++)
-    {
-        fscanf(input, "%d", &dado);
-        *rnt = InsereRN(*rnt, dado, operacoes);
-    }
-
-    end = clock();
-
-    fclose(input);
-
-    return ((double)(end - start)) / CLOCKS_PER_SEC;
+    return (((double)end - (double)start)) / (double)CLOCKS_PER_SEC;
 }
