@@ -5,6 +5,7 @@ typedef unsigned long long int ull;
 struct TipoPtNo
 {
        int info;
+       int size;
        PtNo *prox;
 };
 

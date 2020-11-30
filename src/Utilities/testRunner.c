@@ -16,7 +16,7 @@ double buscaLSE(PtNo *list, ull *comparacoes);
 double buscaRN(RNtree *rnt, ull *comparacoes);
 
 int nElements[] = {5000, 10000, 100000, 1000000};
-char *const files[][9] = {{"orderedIntegers.txt", "ORDENADA"}, {"randomIntegers.txt", "ALEATÓRIA"}};
+char *const files[][2] = {{"orderedIntegers.txt", "ORDENADA"}, {"randomIntegers.txt", "ALEATÓRIA"}};
 
 ull comparacoes, totalComparacoes;
 double timeSpent;
@@ -29,7 +29,7 @@ void resetControlVariables()
 
 void printInsercaoStats(double timeSpent, ull totalComparacoes)
 {
-    printf("\t\t  %.2lf", timeSpent / 3);
+    printf("\t\t  %lf", timeSpent / 3);
     printf("\t\t %llu", totalComparacoes / 3);
 }
 
